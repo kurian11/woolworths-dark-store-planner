@@ -1,5 +1,6 @@
 # Woolworths Dark Store Shelf Planner
 
+**Live demo:** [Interactive floor planner](https://kurian11.github.io/woolworths-dark-store-planner/woolworths_floor_planner.html) · [Buy-together heatmap](https://kurian11.github.io/woolworths-dark-store-planner/woolworths_correlation_matrix.html)
 Two interactive BI tools that turn a raw retail order file into an aisle-layout decision for a **dark store** (a micro-fulfilment warehouse that picks online grocery orders). The goal: put categories that customers *buy together* physically *close together*, so pickers walk less per order.
 
 **Stack:** Python (pandas, SciPy) for the analysis · vanilla JavaScript + HTML/CSS for the tools · no front-end framework, no charting library, no build step.
