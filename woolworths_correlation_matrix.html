@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Category buy-together matrix — Woolworths dark stores</title>
+<style>
+  :root{
+    --green-800:#075C29; --green-700:#0C7A37; --green-600:#178A43; --green-300:#8DC63F;
+    --clay:#B65A25; --clay-deep:#8E4014;
+    --ink:#14201A; --muted:#5C6B60; --line:#D7DFD3;
+    --surface:#F4F7F1; --panel:#FFFFFF; --neutral:#EDEFE9;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono","Cascadia Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --shadow:0 1px 2px rgba(20,32,26,.06),0 8px 24px rgba(20,32,26,.06);
+  }
+  *{box-sizing:border-box}
+  html{ -webkit-text-size-adjust:100%; }
+  body{
+    margin:0; background:var(--surface); color:var(--ink);
+    font-family:var(--sans); line-height:1.5;
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  .wrap{max-width:1040px;margin:0 auto;padding:0 20px 56px}
+
+  /* Header */
+  header.masthead{
+    background:linear-gradient(105deg,var(--green-800),var(--green-600) 62%,var(--green-300));
+    color:#fff; padding:calc(22px + env(safe-area-inset-top,0px)) 0 22px;
+  }
+  .masthead .wrap{padding-bottom:0}
+  .brandrow{display:flex;align-items:center;gap:16px}
+  .logo-chip{
+    width:60px;height:60px;flex:none;background:#fff;border-radius:16px;
+    display:grid;place-items:center;box-shadow:0 4px 14px rgba(7,50,26,.28);padding:8px;
+  }
+  .logo-chip img{width:100%;height:100%;object-fit:contain;display:block}
+  .titles h1{margin:0;font-size:clamp(22px,4.6vw,32px);font-weight:800;letter-spacing:-.02em;line-height:1.08}
+  .titles .kicker{margin:0 0 3px;font-size:12.5px;font-weight:600;letter-spacing:.14em;color:rgba(255,255,255,.86);text-transform:uppercase}
+  .titles .sub{margin:4px 0 0;font-size:14px;color:rgba(255,255,255,.9)}
+
+  /* Caption card */
+  .caption{
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:16px 18px;margin:22px 0 20px;box-shadow:var(--shadow);
+    display:flex;gap:14px;align-items:flex-start;
+  }
+  .caption .mark{width:8px;align-self:stretch;border-radius:6px;background:linear-gradient(var(--green-600),var(--green-300));flex:none}
+  .caption p{margin:0;font-size:14.5px;color:var(--muted);max-width:74ch}
+  .caption p strong{color:var(--ink);font-weight:650}
+
+  /* Matrix */
+  .matrix-scroll{overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch}
+  .matrix{
+    --cell:min(64px,7.6vw); --lbl:118px;
+    display:grid; position:relative; width:max-content; margin:2px auto 0;
+    grid-template-columns:var(--lbl) repeat(10,var(--cell));
+    grid-auto-rows:var(--cell); gap:3px;
+  }
+  .corner{grid-column:1;grid-row:1}
+  .clabel,.rlabel{
+    display:flex;align-items:center;font-size:12px;font-weight:600;color:var(--ink);
+    background:var(--neutral);border-radius:8px;padding:0 8px;overflow:hidden;
+  }
+  .clabel{justify-content:center;text-align:center;height:var(--cell);line-height:1.05;flex-direction:column;gap:2px}
+  .clabel .ord,.rlabel .ord{font-family:var(--mono);font-size:10px;color:var(--green-700);font-weight:700}
+  .rlabel{justify-content:flex-end;text-align:right;padding-right:12px;gap:8px}
+  .rlabel .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cell{
+    border-radius:8px;display:grid;place-items:center;position:relative;
+    font-family:var(--mono);font-size:12.5px;font-weight:600;font-variant-numeric:tabular-nums;
+    height:var(--cell);cursor:default;transition:transform .08s ease,box-shadow .08s ease;
+  }
+  .cell.diag{opacity:.9}
+  .cell.diag::after{content:"";position:absolute;inset:0;border:1.5px dashed rgba(255,255,255,.55);border-radius:8px}
+  .cell:focus-visible,.cell:hover{transform:scale(1.06);box-shadow:0 0 0 2px var(--ink);z-index:6}
+  .cell:focus-visible{outline:none}
+
+  /* cluster brackets share the same grid */
+  .bracket{
+    pointer-events:none;border:2.5px solid var(--green-700);border-radius:12px;
+    z-index:4;box-shadow:0 0 0 2px rgba(255,255,255,.7) inset;position:relative;
+  }
+  .bracket .badge{
+    position:absolute;top:6px;left:6px;width:20px;height:20px;background:var(--green-700);color:#fff;
+    font-family:var(--mono);font-size:12px;font-weight:700;border-radius:999px;display:grid;place-items:center;
+    box-shadow:0 0 0 2px #fff;
+  }
+
+  /* Legend */
+  .legend{display:flex;flex-wrap:wrap;align-items:center;gap:14px 22px;margin:26px 0 0;justify-content:center}
+  .scalebar{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--muted);font-family:var(--mono)}
+  .scalebar .bar{width:220px;max-width:52vw;height:14px;border-radius:8px;border:1px solid var(--line);
+    background:linear-gradient(90deg,var(--clay),var(--neutral) 50%,var(--green-700));}
+  .legend .note{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted)}
+  .legend .swatch{width:16px;height:16px;border-radius:5px;border:2.5px solid var(--green-700);background:transparent}
+  .groups{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center}
+  .groups .g{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:4px 11px 4px 5px}
+  .groups .g b{width:18px;height:18px;border-radius:999px;background:var(--green-700);color:#fff;font-family:var(--mono);font-size:11px;font-weight:700;display:grid;place-items:center}
+
+  .foot{margin-top:30px;font-size:12.5px;color:var(--muted);text-align:center}
+  .foot span{font-family:var(--mono)}
+
+  @media (max-width:560px){
+    .matrix{--cell:52px;--lbl:96px}
+    .rlabel{font-size:11px;padding-right:8px}
+    .caption{flex-direction:row}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+  @media (prefers-color-scheme:dark){
+    body{background:var(--surface);color:var(--ink)} /* lock light: heatmap needs stable scale */
+  }
+</style>
+</head>
+<body>
+  <header class="masthead">
+    <div class="wrap">
+      <div class="brandrow">
+        <div class="logo-chip"><img src="data:image/jpeg;base64,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" alt="Woolworths logo"></div>
+        <div class="titles">
+          <p class="kicker">Woolworths dark stores · BI</p>
+          <h1>Category buy-together matrix</h1>
+          <p class="sub">Which product categories tend to end up in the same basket</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="caption">
+      <div class="mark" aria-hidden="true"></div>
+      <p>For every customer we add up how much they spend in each category, then measure the
+      <strong>Pearson correlation</strong> between categories across all <span id="cn"></span> customers.
+      A cell near <strong>+1</strong> (green) means the two categories rise and fall together —
+      shoppers who spend more on one tend to spend more on the other. Near <strong>&minus;1</strong> (clay)
+      they move in opposite directions; near <strong>0</strong> there's no clear link. Green outlines mark the
+      four groups the planner uses to seed its aisles.</p>
+    </div>
+
+    <div class="matrix-scroll">
+      <div class="matrix" id="matrix" role="img" aria-label="Correlation heatmap of ten product categories in business order"></div>
+    </div>
+
+    <div class="legend">
+      <div class="scalebar" aria-hidden="true">
+        <span>&minus;1</span><span class="bar"></span><span>+1</span>
+      </div>
+      <div class="note"><span class="swatch" aria-hidden="true"></span> Aisle seed groups:</div>
+      <div class="groups" id="groups"></div>
+    </div>
+
+    <p class="foot">Built from <span id="meta"></span>. Categories shown in business order (A&rarr;J), not alphabetically.</p>
+  </main>
+
+<script>
+const DATA = {"categories":["A.Milk","B.Bread","C.Eggs","D.Pasta","E.Pasta Sauce","F.Nachos","G.Salsa","H.Diapers","I.Wet wipes","J.Chocolates"],"labels":{"A.Milk":"Milk","B.Bread":"Bread","C.Eggs":"Eggs","D.Pasta":"Pasta","E.Pasta Sauce":"Pasta Sauce","F.Nachos":"Nachos","G.Salsa":"Salsa","H.Diapers":"Diapers","I.Wet wipes":"Wet wipes","J.Chocolates":"Chocolates"},"corr":[[1.0,0.7574,0.7891,0.0192,-0.0244,-0.0849,0.0272,0.0977,-0.0269,-0.0709],[0.7574,1.0,0.6087,0.1459,0.1001,-0.1031,-0.1723,0.0241,-0.071,0.1025],[0.7891,0.6087,1.0,-0.0208,0.0254,-0.2085,0.0434,0.067,-0.0682,-0.1193],[0.0192,0.1459,-0.0208,1.0,0.9553,0.1952,0.2268,-0.1508,-0.1542,-0.0899],[-0.0244,0.1001,0.0254,0.9553,1.0,0.108,0.1547,-0.1805,-0.1975,-0.1368],[-0.0849,-0.1031,-0.2085,0.1952,0.108,1.0,0.4782,0.1602,0.2172,0.1724],[0.0272,-0.1723,0.0434,0.2268,0.1547,0.4782,1.0,-0.0621,-0.1202,-0.1915],[0.0977,0.0241,0.067,-0.1508,-0.1805,0.1602,-0.0621,1.0,0.7022,0.5801],[-0.0269,-0.071,-0.0682,-0.1542,-0.1975,0.2172,-0.1202,0.7022,1.0,0.7811],[-0.0709,0.1025,-0.1193,-0.0899,-0.1368,0.1724,-0.1915,0.5801,0.7811,1.0]],"seed_aisles":[["A.Milk","B.Bread","C.Eggs"],["D.Pasta","E.Pasta Sauce"],["F.Nachos","G.Salsa"],["H.Diapers","I.Wet wipes","J.Chocolates"]],"cat_products":{"A.Milk":["A2 Full Cream Milk 2L","Dairy Farmers Lite Milk 2L","Pauls Full Cream Milk 2L"],"B.Bread":["Wonder White Sandwich 700g","Abbott's Village Bakery Farmhouse Wholemeal 800g","Helga's Wholemeal 750g"],"C.Eggs":["Pace Farm Free Range Eggs 12 pack 600g","Woolworths Free Range Eggs 12 pack 700g"],"D.Pasta":["San Remo Penne 500g","Barilla Spaghetti 500g","Latina Fresh Beef Ravioli 625g"],"E.Pasta Sauce":["Dolmio Pasta Sauce Classic Tomato 500g","Barilla Basilico Pasta Sauce 400g","Leggo's Bolognese Pasta Sauce 500g"],"F.Nachos":["CC's Corn Chips Tasty Cheese 175g","Doritos Corn Chips Cheese Supreme 170g"],"G.Salsa":["Old El Paso Thick N Chunky Salsa Mild 300g","Tostitos Salsa Medium 300g"],"H.Diapers":["BabyLove Cosifit Nappies Size 3 54 pack","Huggies Ultra Dry Nappy Pants Size 4 29 pack"],"I.Wet wipes":["Curash Baby Wipes 80 pack","Huggies Baby Wipes Fragrance Free 80 pack"],"J.Chocolates":["Lindt Excellence 70% Cocoa Dark Chocolate 100g","Cadbury Dairy Milk Chocolate Block 180g","Maltesers Box 400g"]},"prod_stats":{"A2 Full Cream Milk 2L":{"units":900,"spend":5040.0,"avg_price":5.6,"customers":91},"Dairy Farmers Lite Milk 2L":{"units":1015,"spend":3958.5,"avg_price":3.9,"customers":90},"Pauls Full Cream Milk 2L":{"units":1035,"spend":4036.5,"avg_price":3.9,"customers":96},"Wonder White Sandwich 700g":{"units":1043,"spend":4067.7,"avg_price":3.9,"customers":93},"Abbott's Village Bakery Farmhouse Wholemeal 800g":{"units":1033,"spend":4855.1,"avg_price":4.7,"customers":92},"Helga's Wholemeal 750g":{"units":1007,"spend":4732.9,"avg_price":4.7,"customers":92},"Pace Farm Free Range Eggs 12 pack 600g":{"units":1163,"spend":5815.0,"avg_price":5.0,"customers":93},"Woolworths Free Range Eggs 12 pack 700g":{"units":1125,"spend":6075.0,"avg_price":5.4,"customers":90},"San Remo Penne 500g":{"units":673,"spend":1682.5,"avg_price":2.5,"customers":87},"Barilla Spaghetti 500g":{"units":699,"spend":2097.0,"avg_price":3.0,"customers":88},"Latina Fresh Beef Ravioli 625g":{"units":458,"spend":3893.0,"avg_price":8.5,"customers":73},"Dolmio Pasta Sauce Classic Tomato 500g":{"units":533,"spend":1972.1,"avg_price":3.7,"customers":80},"Barilla Basilico Pasta Sauce 400g":{"units":518,"spend":2331.0,"avg_price":4.5,"customers":80},"Leggo's Bolognese Pasta Sauce 500g":{"units":537,"spend":2148.0,"avg_price":4.0,"customers":75},"CC's Corn Chips Tasty Cheese 175g":{"units":594,"spend":2851.2,"avg_price":4.8,"customers":78},"Doritos Corn Chips Cheese Supreme 170g":{"units":604,"spend":2899.2,"avg_price":4.8,"customers":88},"Old El Paso Thick N Chunky Salsa Mild 300g":{"units":490,"spend":2205.0,"avg_price":4.5,"customers":79},"Tostitos Salsa Medium 300g":{"units":502,"spend":2008.0,"avg_price":4.0,"customers":88},"BabyLove Cosifit Nappies Size 3 54 pack":{"units":552,"spend":11592.0,"avg_price":21.0,"customers":85},"Huggies Ultra Dry Nappy Pants Size 4 29 pack":{"units":573,"spend":12033.0,"avg_price":21.0,"customers":81},"Curash Baby Wipes 80 pack":{"units":2015,"spend":9067.5,"avg_price":4.5,"customers":98},"Huggies Baby Wipes Fragrance Free 80 pack":{"units":2030,"spend":10150.0,"avg_price":5.0,"customers":97},"Lindt Excellence 70% Cocoa Dark Chocolate 100g":{"units":602,"spend":2889.6,"avg_price":4.8,"customers":87},"Cadbury Dairy Milk Chocolate Block 180g":{"units":539,"spend":2964.5,"avg_price":5.5,"customers":76},"Maltesers Box 400g":{"units":480,"spend":5760.0,"avg_price":12.0,"customers":67}},"meta":{"customers":100,"orders":1995,"lines":8902,"products":25}};
+document.getElementById('cn').textContent = DATA.meta.customers;
+document.getElementById('meta').innerHTML =
+  '<span>'+DATA.meta.lines.toLocaleString()+'</span> order lines · <span>'+DATA.meta.orders.toLocaleString()+
+  '</span> orders · <span>'+DATA.meta.customers+'</span> customers';
+
+const cats = DATA.categories, corr = DATA.corr, labels = DATA.labels;
+const short = c => labels[c];
+const ord = c => c.split('.')[0];
+
+// diverging colour: -1 clay .. 0 neutral .. +1 green
+const CLAY=[182,90,37], NEU=[237,239,233], GRN=[12,122,55], GRN_DEEP=[7,92,41];
+function lerp(a,b,t){return a.map((v,i)=>Math.round(v+(b[i]-v)*t));}
+function colour(r){
+  let c;
+  if(r>=0){ c = r<0.7 ? lerp(NEU,GRN,r/0.7) : lerp(GRN,GRN_DEEP,(r-0.7)/0.3); }
+  else    { c = lerp(NEU,CLAY,Math.min(1,-r)); }
+  return c;
+}
+function textOn(rgb){ // WCAG relative luminance
+  const [r,g,b]=rgb.map(v=>{v/=255;return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4);});
+  const L=0.2126*r+0.7152*g+0.0722*b;
+  return L>0.42 ? 'var(--ink)' : '#ffffff';
+}
+
+const m = document.getElementById('matrix');
+// corner (explicit placement throughout so bracket overlays don't disturb flow)
+const corner=document.createElement('div'); corner.className='corner';
+corner.style.gridColumn='1'; corner.style.gridRow='1'; m.appendChild(corner);
+// column labels
+cats.forEach((c,j)=>{
+  const el=document.createElement('div'); el.className='clabel';
+  el.style.gridRow='1'; el.style.gridColumn=(j+2);
+  el.innerHTML='<span class="ord">'+ord(c)+'</span><span>'+short(c)+'</span>';
+  m.appendChild(el);
+});
+// rows
+cats.forEach((rc,i)=>{
+  const rl=document.createElement('div'); rl.className='rlabel';
+  rl.style.gridRow=(i+2); rl.style.gridColumn='1';
+  rl.innerHTML='<span class="nm">'+short(rc)+'</span><span class="ord">'+ord(rc)+'</span>';
+  m.appendChild(rl);
+  cats.forEach((cc,j)=>{
+    const v=corr[i][j];
+    const rgb=colour(v);
+    const cell=document.createElement('div');
+    cell.className='cell'+(i===j?' diag':'');
+    cell.style.gridRow=(i+2); cell.style.gridColumn=(j+2);
+    cell.style.background='rgb('+rgb.join(',')+')';
+    cell.style.color=textOn(rgb);
+    cell.textContent=(v>=0?'+':'\u2212')+Math.abs(v).toFixed(2);
+    cell.tabIndex=0;
+    cell.setAttribute('role','img');
+    const label=short(rc)+' and '+short(cc)+': correlation '+v.toFixed(2)+
+      (i===j?' (same category)':'');
+    cell.setAttribute('aria-label',label);
+    cell.title=label;
+    m.appendChild(cell);
+  });
+});
+
+// cluster brackets on the same grid (blocks are contiguous in business order)
+const names=['Breakfast staples','Pasta night','Nachos & dips','Baby care & treats'];
+let start=0;
+DATA.seed_aisles.forEach((aisle,idx)=>{
+  const n=aisle.length, s=start, e=start+n; // 0-based positions among 10 cats
+  const b=document.createElement('div'); b.className='bracket';
+  b.style.gridColumn=(s+2)+' / '+(e+2);   // +2: label col + 1-based
+  b.style.gridRow=(s+2)+' / '+(e+2);
+  b.innerHTML='<span class="badge" aria-hidden="true">'+(idx+1)+'</span>';
+  b.setAttribute('role','img');
+  b.setAttribute('aria-label','Seed group '+(idx+1)+', '+names[idx]+': '+aisle.map(short).join(', '));
+  m.appendChild(b);
+  start=e;
+});
+const gEl=document.getElementById('groups');
+names.forEach((nm,i)=>{
+  const g=document.createElement('span'); g.className='g';
+  g.innerHTML='<b>'+(i+1)+'</b>'+nm; gEl.appendChild(g);
+});
+</script>
+</body>
+</html>
